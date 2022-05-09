@@ -7,4 +7,4 @@ Make any desired changes to keybinds in /src/main.rs
 in a terminal type:
 cargo build --release
 
-add ~/mpwm-master/target/release/mpwm to ~/.xinitrc
+add $HOME/MPWM-main/target/release/mpwm to $HOME/.xinitrc
