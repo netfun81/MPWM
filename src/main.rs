@@ -105,14 +105,14 @@ fn main() -> Result<()> {
         "M-a"   => run_external!(mixer);
         "M-s"   => run_external!(locker);
 
-        "M-j"     => run_internal!(cycle_client, Forward);
-        "M-k"     => run_internal!(cycle_client, Backward);
-        "M-S-j"   => run_internal!(drag_client, Forward);
-        "M-S-k"   => run_internal!(drag_client, Backward);
-        "M-d"     => run_internal!(kill_client);
-        "M-f"     => run_internal!(toggle_client_fullscreen, &Selector::Focused);
-        "M-slash" => sp.toggle(); // popup terminal
-        "M-Tab" => run_internal!(toggle_workspace);
+        "M-Tab"    => run_internal!(cycle_client, Forward);
+        "M-S-Tab"  => run_internal!(cycle_client, Backward);
+        "M-j"      => run_internal!(drag_client, Forward);
+        "M-k"      => run_internal!(drag_client, Backward);
+        "M-d"      => run_internal!(kill_client);
+        "M-f"      => run_internal!(toggle_client_fullscreen, &Selector::Focused);
+        "M-Return" => sp.toggle(); // popup terminal
+        "M-n"      => run_internal!(toggle_workspace);
         
         "M-grave"    => run_internal!(cycle_layout, Forward);
         "M-S-grave"  => run_internal!(cycle_layout, Backward);
