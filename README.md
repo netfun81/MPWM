@@ -1,5 +1,5 @@
 # MPWM
-A Rust Window Manager for X11 using the Penrose library.
+A tiling Window Manager for X11 using the Rust Penrose library.
 
 TO USE:
 Make any desired changes to keybinds in /src/main.rs
