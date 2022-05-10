@@ -15,7 +15,7 @@ fn main() -> Result<()> {
     
     let mut config_builder = Config::default().builder();
     config_builder
-		.workspaces(vec!["1", "2", "3", "4", "5"])
+        .workspaces(vec!["1", "2", "3", "4", "5"])
         .floating_classes(vec!["dmenu", "dunst", "polybar", "rofi"])
         .focused_border("#0000ff")?
         .unfocused_border("#0c1014")?
