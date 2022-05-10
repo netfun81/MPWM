@@ -12,7 +12,6 @@ use penrose::{
     core::{
         config::Config,
         helpers::index_selectors,
-        hooks::Hook,
         layout::{
             bottom_stack,
             side_stack,
@@ -21,9 +20,6 @@ use penrose::{
         },
         manager::WindowManager,
         ring::Selector,
-        xconnection::{
-            XConn,
-        },
     },
     xcb::{
         XcbConnection,
@@ -39,16 +35,6 @@ use penrose::{
 
 use simplelog::{LevelFilter, SimpleLogger};
 use std::collections::HashMap;
-
-struct StartupScript {
-    path: String,
-}
-
-impl<X: XConn> Hook<X> for StartupScript {
-    fn startup(&mut self, _: &mut WindowManager<X>) -> Result<()> {
-        spawn!(&self.path)
-    }
-}
 
 fn main() -> Result<()> {
     SimpleLogger::init(LevelFilter::Debug, simplelog::Config::default())
