@@ -2,9 +2,13 @@
 A tiling Window Manager for X11, using the Penrose library written in Rust language.
 
 TO USE:
+Install cargo and rust libraries from your package manager if needed.
+
 Make any desired changes to keybinds in /src/main.rs
 
-in a terminal type:
+In a terminal type:
 cargo build --release
 
-add $HOME/MPWM-main/target/release/mpwm to $HOME/.xinitrc
+Edit .xinitrc and add path to executable:
+geany ~/.xinitrc
+~/MPWM-main/target/release/mpwm
