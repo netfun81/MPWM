@@ -34,8 +34,8 @@ fn main() -> Result<()> {
         "M-d" => run_internal!(kill_client);
         "M-f" => run_internal!(toggle_client_fullscreen, &Selector::Focused);
         "M-n" => run_internal!(toggle_workspace);
-        "M-x" => run_internal!(cycle_workspace, Forward);
-        "M-z" => run_internal!(cycle_workspace, Backward);
+        "M-p" => run_internal!(cycle_workspace, Forward);
+        "M-o" => run_internal!(cycle_workspace, Backward);
         "M-grave" => run_internal!(cycle_layout, Forward);
         "M-S-grave" => run_internal!(cycle_layout, Backward);
         "M-Up" => run_internal!(update_max_main, More);
@@ -43,14 +43,14 @@ fn main() -> Result<()> {
         "M-Right" => run_internal!(update_main_ratio, More);
         "M-Left" => run_internal!(update_main_ratio, Less);
         "M-S-Escape" => run_internal!(exit);
-        "M-w" => run_external!("chromium --incognito");
+        "M-w" => run_external!("ungoo");
         "M-e" => run_external!("thunar");
         "M-r" => run_external!("rofi -show run");
         "M-t" => run_external!("alacritty");
         "M-a" => run_external!("pavucontrol");
         "M-s" => run_external!("slock");
 
-        map: { "1", "2", "3", "4", "5" } to index_selectors(5) => {
+        map: { "z", "x", "c", "v", "b" } to index_selectors(5) => {
             "M-{}" => focus_workspace (REF);
             "M-S-{}" => client_to_workspace (REF);
         };
