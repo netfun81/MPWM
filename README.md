@@ -10,5 +10,7 @@ In a terminal type:
 cargo build --release
 
 Edit .xinitrc and add path to executable:
+--
 geany ~/.xinitrc
+--
 ~/MPWM-main/target/release/mpwm
