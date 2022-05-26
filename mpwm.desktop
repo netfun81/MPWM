@@ -1,0 +1,8 @@
+[Desktop Entry]
+Version=1.0
+Name=mpwm
+Comment=my penrose window manager
+Exec=~/MPWM-main/target/release/mpwm
+Icon=
+Type=Application
+
