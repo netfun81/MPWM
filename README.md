@@ -10,7 +10,7 @@ Install cargo and rust libraries from your package manager if not installed.
 
 2.  Make any desired changes to keybinds in /src/main.rs
 
-3.  Open a terminal in MPWM-main, type: cargo build --release
+3.  Open a terminal in ~/MPWM-main and type: cargo build --release
 
 4.  Copy the mpwm.desktop file to /usr/share/xsessions
 
