@@ -43,7 +43,7 @@ fn main() -> Result<()> {
         "M-Right" => run_internal!(update_main_ratio, More);
         "M-Left" => run_internal!(update_main_ratio, Less);
         "M-S-Escape" => run_internal!(exit);
-        "M-w" => run_external!("ungoo");
+        "M-w" => run_external!("firefox");
         "M-e" => run_external!("thunar");
         "M-r" => run_external!("rofi -show run");
         "M-t" => run_external!("alacritty");
@@ -57,8 +57,8 @@ fn main() -> Result<()> {
     };
 
     let mouse_bindings = gen_mousebindings! {
-        Press Right + [Meta] => |wm: &mut WindowManager<_>, _: &MouseEvent| wm.cycle_workspace(Forward),
-        Press Left + [Meta] => |wm: &mut WindowManager<_>, _: &MouseEvent| wm.cycle_workspace(Backward)
+        Press ScrollDown + [Meta] => |wm: &mut WindowManager<_>, _: &MouseEvent| wm.cycle_workspace(Forward),
+        Press ScrollUp + [Meta] => |wm: &mut WindowManager<_>, _: &MouseEvent| wm.cycle_workspace(Backward)
     };
 
     let mut wm = new_xcb_backed_window_manager(config, hooks, logging_error_handler())?;
