@@ -20,7 +20,7 @@ fn main() -> Result<()> {
         .focused_border("#00afff")?
         .unfocused_border("#0c1014")?
         .border_px(2)
-        .gap_px(2)
+        .gap_px(0)
         .show_bar(false)
         .top_bar(false)
         .bar_height(0);
