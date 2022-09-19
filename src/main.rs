@@ -36,6 +36,7 @@ fn main() -> Result<()> {
         "M-n" => run_internal!(toggle_workspace);
         "M-p" => run_internal!(cycle_workspace, Forward);
         "M-o" => run_internal!(cycle_workspace, Backward);
+        "M-Caps_Lock" => run_internal!(cycle_workspace, Backward);
         "M-grave" => run_internal!(cycle_layout, Forward);
         "M-S-grave" => run_internal!(cycle_layout, Backward);
         "M-Up" => run_internal!(update_max_main, More);
@@ -46,7 +47,7 @@ fn main() -> Result<()> {
         "M-w" => run_external!("firefox");
         "M-e" => run_external!("thunar");
         "M-r" => run_external!("rofi -show run");
-        "M-t" => run_external!("alacritty");
+        "M-t" => run_external!("urxvt -rv");
         "M-a" => run_external!("pavucontrol");
         "M-s" => run_external!("slock");
 
