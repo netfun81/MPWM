@@ -1,69 +1,80 @@
-#[macro_use]
-extern crate penrose;
-
 use penrose::{
-    core::{
-        bindings::MouseEvent, config::Config, helpers::index_selectors, manager::WindowManager,
+    builtin::{
+        actions::{exit, modify_with, send_layout_message, spawn},
+        layout::messages::{ExpandMain, IncMain, ShrinkMain},
     },
-    logging_error_handler,
-    xcb::new_xcb_backed_window_manager,
-    Backward, Forward, Less, More, Result, Selector
+    core::{
+        bindings::{parse_keybindings_with_xmodmap, KeyEventHandler},
+        Config, WindowManager,
+    },
+    map,
+    x11rb::RustConn,
+    Result,
 };
 
+use std::collections::HashMap;
+
+fn raw_key_bindings() -> HashMap<String, Box<dyn KeyEventHandler<RustConn>>> {
+    let mut raw_bindings = map! {
+        map_keys: |k: &str| k.to_string();
+
+        "M-j" => modify_with(|cs| cs.focus_down()),
+        "M-k" => modify_with(|cs| cs.focus_up()),
+        "M-S-j" => modify_with(|cs| cs.swap_down()),
+        "M-S-k" => modify_with(|cs| cs.swap_up()),
+        "M-d" => modify_with(|cs| cs.kill_focused()),
+        "M-Tab" => modify_with(|cs| cs.toggle_tag()),
+        "M-grave" => modify_with(|cs| cs.next_layout()),
+        "M-S-grave" => modify_with(|cs| cs.previous_layout()),
+        "M-S-Up" => send_layout_message(|| IncMain(1)),
+        "M-S-Down" => send_layout_message(|| IncMain(-1)),
+        "M-S-Right" => send_layout_message(|| ExpandMain),
+        "M-S-Left" => send_layout_message(|| ShrinkMain),
+        "M-w" => spawn("brave-browser"),
+        "M-e" => spawn("pcmanfm-qt"),
+        "M-r" => spawn("dmenu_run"),
+        "M-t" => spawn("qterminal"),
+        "M-a" => spawn("pavucontrol-qt"),
+        "M-s" => spawn("slock"),
+        "M-p" => spawn("kcsuspend"),
+        "M-S-q" => exit(),
+    };
+
+    for tag in &["1", "2", "3", "4", "5", "6", "7", "8", "9"] {
+        raw_bindings.extend([
+            (
+                format!("M-{tag}"),
+                modify_with(move |client_set| client_set.focus_tag(tag)),
+            ),
+            (
+                format!("M-S-{tag}"),
+                modify_with(move |client_set| client_set.move_focused_to_tag(tag)),
+            ),
+        ]);
+    }
+
+    raw_bindings
+}
+
 fn main() -> Result<()> {
-    let hooks = vec![];
-    
-    let mut config_builder = Config::default().builder();
-    config_builder
-        .workspaces(vec!["1", "2", "3", "4", "5"])
-        .floating_classes(vec!["dmenu", "dunst", "polybar", "rofi"])
-        .focused_border("#00afff")?
-        .unfocused_border("#0c1014")?
-        .border_px(2)
-        .gap_px(0)
-        .show_bar(false)
-        .top_bar(false)
-        .bar_height(0);
-    let config = config_builder.build().unwrap();
 
-    let key_bindings = gen_keybindings! {
-        "M-Tab" => run_internal!(cycle_client, Forward);
-        "M-S-Tab" => run_internal!(cycle_client, Backward);
-        "M-j" => run_internal!(drag_client, Forward);
-        "M-k" => run_internal!(drag_client, Backward);
-        "M-d" => run_internal!(kill_client);
-        "M-f" => run_internal!(toggle_client_fullscreen, &Selector::Focused);
-        "M-n" => run_internal!(toggle_workspace);
-        "M-p" => run_internal!(cycle_workspace, Forward);
-        "M-o" => run_internal!(cycle_workspace, Backward);
-        "M-Caps_Lock" => run_internal!(cycle_workspace, Backward);
-        "M-grave" => run_internal!(cycle_layout, Forward);
-        "M-S-grave" => run_internal!(cycle_layout, Backward);
-        "M-Up" => run_internal!(update_max_main, More);
-        "M-Down" => run_internal!(update_max_main, Less);
-        "M-Right" => run_internal!(update_main_ratio, More);
-        "M-Left" => run_internal!(update_main_ratio, Less);
-        "M-S-Escape" => run_internal!(exit);
-        "M-w" => run_external!("firefox");
-        "M-e" => run_external!("thunar");
-        "M-r" => run_external!("rofi -show run");
-        "M-t" => run_external!("urxvt -rv");
-        "M-a" => run_external!("pavucontrol");
-        "M-s" => run_external!("slock");
+    let conn = RustConn::new()?;
+    let key_bindings = parse_keybindings_with_xmodmap(raw_key_bindings())?;
+    let wm = WindowManager::new(Config::default(), key_bindings, HashMap::new(), conn)?;
 
-        map: { "z", "x", "c", "v", "b" } to index_selectors(5) => {
-            "M-{}" => focus_workspace (REF);
-            "M-S-{}" => client_to_workspace (REF);
-        };
-    };
+    wm.run()
+}
 
-    let mouse_bindings = gen_mousebindings! {
-        Press ScrollDown + [Meta] => |wm: &mut WindowManager<_>, _: &MouseEvent| wm.cycle_workspace(Forward),
-        Press ScrollUp + [Meta] => |wm: &mut WindowManager<_>, _: &MouseEvent| wm.cycle_workspace(Backward)
-    };
+#[cfg(test)]
+mod tests {
+    use super::*;
 
-    let mut wm = new_xcb_backed_window_manager(config, hooks, logging_error_handler())?;
-    wm.grab_keys_and_run(key_bindings, mouse_bindings)?;
+    #[test]
+    fn bindings_parse_correctly_with_xmodmap() {
+        let res = parse_keybindings_with_xmodmap(raw_key_bindings());
 
-    Ok(())
+        if let Err(e) = res {
+            panic!("{e}");
+        }
+    }
 }
