@@ -24,8 +24,6 @@ fn raw_key_bindings() -> HashMap<String, Box<dyn KeyEventHandler<RustConn>>> {
         "M-S-k" => modify_with(|cs| cs.swap_up()),
         "M-d" => modify_with(|cs| cs.kill_focused()),
         "M-Tab" => modify_with(|cs| cs.toggle_tag()),
-        "M-grave" => modify_with(|cs| cs.next_layout()),
-        "M-S-grave" => modify_with(|cs| cs.previous_layout()),
         "M-S-Up" => send_layout_message(|| IncMain(1)),
         "M-S-Down" => send_layout_message(|| IncMain(-1)),
         "M-S-Right" => send_layout_message(|| ExpandMain),
