@@ -1,23 +1,29 @@
 use penrose::{
     builtin::{
-        actions::{exit, modify_with, send_layout_message, spawn},
-        layout::messages::{ExpandMain, IncMain, ShrinkMain},
+        actions::{exit, log_current_state, modify_with, send_layout_message, spawn},
+        layout::{
+            messages::{ExpandMain, IncMain, ShrinkMain},
+            transformers::{Gaps, ReflectHorizontal, ReserveTop},
+            MainAndStack,
+        },
     },
     core::{
         bindings::{parse_keybindings_with_xmodmap, KeyEventHandler},
+        layout::LayoutStack,
         Config, WindowManager,
     },
-    map,
+    extensions::hooks::{add_ewmh_hooks}, //SpawnOnStartup},
+    map, stack,
     x11rb::RustConn,
     Result,
 };
-
 use std::collections::HashMap;
 use tracing_subscriber::{self, prelude::*};
 
 fn raw_key_bindings() -> HashMap<String, Box<dyn KeyEventHandler<RustConn>>> {
     let mut raw_bindings = map! {
-        map_keys: |k: &str| k.to_string();
+        // map_keys: |k: &str| format!("C-{k}");
+        map_keys: |k: &str| k.to_owned();
 
         "M-j" => modify_with(|cs| cs.focus_down()),
         "M-k" => modify_with(|cs| cs.focus_up()),
@@ -25,10 +31,11 @@ fn raw_key_bindings() -> HashMap<String, Box<dyn KeyEventHandler<RustConn>>> {
         "M-S-k" => modify_with(|cs| cs.swap_up()),
         "M-S-d" => modify_with(|cs| cs.kill_focused()),
         "M-Tab" => modify_with(|cs| cs.toggle_tag()),
-        "M-S-Up" => send_layout_message(|| IncMain(1)),
-        "M-S-Down" => send_layout_message(|| IncMain(-1)),
-        "M-S-Right" => send_layout_message(|| ExpandMain),
-        "M-S-Left" => send_layout_message(|| ShrinkMain),
+        "M-Up" => send_layout_message(|| IncMain(1)),
+        "M-Down" => send_layout_message(|| IncMain(-1)),
+        "M-Right" => send_layout_message(|| ExpandMain),
+        "M-Left" => send_layout_message(|| ShrinkMain),
+        "M-S-s" => log_current_state(),
         "M-w" => spawn("brave-browser"),
         "M-e" => spawn("pcmanfm-qt"),
         "M-r" => spawn("dmenu_run"),
@@ -55,29 +62,37 @@ fn raw_key_bindings() -> HashMap<String, Box<dyn KeyEventHandler<RustConn>>> {
     raw_bindings
 }
 
+fn layouts() -> LayoutStack {
+    let max_main = 1;
+    let ratio = 0.6;
+    let ratio_step = 0.1;
+    let outer_px = 0;
+    let inner_px = 0;
+    let top_px = 0;
+
+    stack!(
+        MainAndStack::side(max_main, ratio, ratio_step),
+        ReflectHorizontal::wrap(MainAndStack::side(max_main, ratio, ratio_step)),
+        MainAndStack::bottom(max_main, ratio, ratio_step)
+    )
+    .map(|layout| ReserveTop::wrap(Gaps::wrap(layout, outer_px, inner_px), top_px))
+}
+
 fn main() -> Result<()> {
     tracing_subscriber::fmt()
-        .with_env_filter("info")
+        .with_env_filter("trace")
         .finish()
         .init();
 
+    let config = add_ewmh_hooks(Config {
+        default_layouts: layouts(),
+        //startup_hook: Some(SpawnOnStartup::boxed("polybar")),
+        ..Config::default()
+    });
+
     let conn = RustConn::new()?;
     let key_bindings = parse_keybindings_with_xmodmap(raw_key_bindings())?;
-    let wm = WindowManager::new(Config::default(), key_bindings, HashMap::new(), conn)?;
+    let wm = WindowManager::new(config, key_bindings, HashMap::new(), conn)?;
 
     wm.run()
-}
-
-#[cfg(test)]
-mod tests {
-    use super::*;
-
-    #[test]
-    fn bindings_parse_correctly_with_xmodmap() {
-        let res = parse_keybindings_with_xmodmap(raw_key_bindings());
-
-        if let Err(e) = res {
-            panic!("{e}");
-        }
-    }
 }
