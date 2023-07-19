@@ -1,8 +1,8 @@
 [package]
 name = "mpwm"
-version = "0.3.2"
+version = "0.3.3"
 edition = "2021"
 
 [dependencies]
-penrose = "0.3.2"
+penrose = "0.3.3"
 tracing-subscriber = { version = "0.3.16", features = ["env-filter"] }
