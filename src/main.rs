@@ -34,6 +34,7 @@ fn raw_key_bindings() -> HashMap<String, Box<dyn KeyEventHandler<RustConn>>> {
         "M-a" => spawn("pavucontrol"),
         "M-s" => spawn("slock"),
         "M-S-s" => spawn("systemctl suspend"),
+        "M-S-p" => spawn("systemctl poweroff"),
         "M-S-q" => exit(),
     };
 
